@@ -9,20 +9,21 @@ class BytesToBits:
 
 
 class BitsToBytes:
-    def __init__(self, iterable):
+    def __init__(self, *iterable):
         self.iterable = iterable
 
     def __iter__(self):
         shift = 0
         acc = 0
-        for bit in self.iterable:
-            acc |= bit << shift
-            shift += 1
+        for iterable in self.iterable:
+            for bit in iterable:
+                acc |= bit << shift
+                shift += 1
 
-            if shift == 8:
-                yield acc
-                shift = 0
-                acc = 0
+                if shift == 8:
+                    yield acc
+                    shift = 0
+                    acc = 0
 
         if shift != 0:
             yield acc

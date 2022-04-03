@@ -1,5 +1,6 @@
 from huffman import *
 from unittest import TestCase
+from random import choices
 
 
 class TestEncode(TestCase):
@@ -33,3 +34,32 @@ class TestEncode(TestCase):
             else:
                 next_node = nodes[i+1]
             self.assertIs(nodes[i].next, next_node)
+
+    def test_encode_bits(self):
+        message = bytes(choices(range(256), k=1001))
+        distribution = [0] * 256
+        for code in message:
+            distribution[code] += 1
+
+        encoder = Encoder(distribution)
+        self.assertEqual(len(encoder.end_code), encoder.end_code_length)
+        encoder.forest.merge_step()
+        self.assertListEqual(list(message), list(encoder.decode_bits(encoder.encode_bits(message))))
+
+    def test_encode_bytes(self):
+        message = bytes(choices(range(256), k=1001))
+        distribution = [0] * 256
+        for code in message:
+            distribution[code] += 1
+
+        encoder = Encoder(distribution)
+        self.assertListEqual(list(message), list(encoder.decode(encoder.encode(message))))
+
+        for i in range(1000, 1100):
+            message = bytes(choices(range(256), k=i))
+            self.assertListEqual(list(message), list(encoder.decode(encoder.encode(message)))[:i])
+
+        encoder = Encoder(distribution, end_flag=False)
+        for i in range(100):
+            message = bytes(choices(range(256), k=i))
+            self.assertListEqual(list(message), list(encoder.decode(encoder.encode(message)))[:i])
